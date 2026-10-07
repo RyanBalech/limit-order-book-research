@@ -17,7 +17,7 @@ The project separates three questions: is there measurable short-horizon signal 
 | Gradient-boosted trees | Implemented |
 | DeepLOB-style PyTorch model | Runnable chronological baseline implemented |
 | Multi-day walk-forward study | Requires multi-day data |
-| Cost-aware trading sanity check | Planned |
+| Cost-aware trading sanity check | Implemented |
 
 ## Data
 
