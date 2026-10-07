@@ -1,0 +1,34 @@
+name: LOBSTER reproducibility study
+
+on:
+  workflow_dispatch:
+
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install -e ".[ml]"
+      - name: Download official public AAPL level-10 data
+        run: python scripts/download_lobster_public_data.py
+      - name: Locate aligned files
+        id: data
+        shell: bash
+        run: |
+          echo "messages=$(find data/raw/aapl_level10 -type f -name '*message*.csv' | head -n 1)" >> "$GITHUB_OUTPUT"
+          echo "book=$(find data/raw/aapl_level10 -type f -name '*orderbook*.csv' | head -n 1)" >> "$GITHUB_OUTPUT"
+      - name: Run gradient-boosted chronological baseline
+        run: |
+          python scripts/run_gradient_boosted_baseline.py \
+            "${{ steps.data.outputs.messages }}" \
+            "${{ steps.data.outputs.book }}" \
+            --output results/aapl_level10_gradient_boosted.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lobster-aapl-level10-results
+          path: results/aapl_level10_gradient_boosted.json
