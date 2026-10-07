@@ -21,4 +21,10 @@ def load_lobster_pair(message_path: str | Path, book_path: str | Path) -> LOBSTE
         raise ValueError("order-book file must have 4 columns per level")
     if len(messages) != len(book):
         raise ValueError("message and order-book rows must be aligned")
+    if not np.isfinite(messages).all() or not np.isfinite(book).all():
+        raise ValueError("LOBSTER inputs must contain finite values")
+    if np.any(np.diff(messages[:, 0]) < 0):
+        raise ValueError("message timestamps must be non-decreasing")
+    if np.any(book[:, 1::2] < 0):
+        raise ValueError("order-book quantities must be non-negative")
     return LOBSTERData(messages=messages, book=book, levels=book.shape[1] // 4)

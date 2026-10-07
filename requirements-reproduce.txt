@@ -1,0 +1,8 @@
+# Critical package versions used for the published local experiments.
+# Python 3.12. Install with: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements-reproduce.txt
+numpy==2.3.5
+pytest==8.4.2
+ruff==0.16.10
+torch==2.14.1+cpu
+matplotlib==3.10.8
+scikit-learn==1.8.0

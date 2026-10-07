@@ -42,6 +42,8 @@ def build_features(data: LOBSTERData, *, depth: int = 5, price_scale: float = 1e
 
     event_size = data.messages[:, 3]
     direction = data.messages[:, 5]
+    # LOBSTER direction is the resting order side. For executions it is the
+    # opposite of aggressor trade direction; this feature is NOT signed volume.
     signed_event_size = event_size * direction
 
     ofi = np.zeros(len(book), dtype=float)

@@ -12,6 +12,7 @@ dependencies = ["numpy>=1.26,<3"]
 [project.optional-dependencies]
 dev = ["pytest>=8,<9", "ruff>=0.8,<1"]
 ml = ["scikit-learn>=1.5,<2", "torch>=2.4,<3"]
+plots = ["matplotlib>=3.8,<4"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

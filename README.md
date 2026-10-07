@@ -1,64 +1,67 @@
 # Limit Order Book Research
 
-A reproducible research project on **order-flow imbalance and short-horizon mid-price prediction** from limit order book data.
+Short-horizon mid-price direction prediction from LOBSTER messages and order-book
+snapshots: causal microstructure features, purged chronological evaluation, and
+comparisons between linear and tree-based models.
 
-The project separates three questions: is there measurable short-horizon signal in order-book state and event flow; do nonlinear/deep models improve out-of-sample prediction over interpretable microstructure baselines; and do improvements survive chronological evaluation, uncertainty analysis, and simple trading-cost sanity checks?
+## Measured experiment
 
-## Research status
+The public AAPL level-10 sample for 2012-06-21 yields **400,291 labeled events**.
+Features use five book levels; labels use the midpoint 100 events ahead. Train,
+validation and test are chronological with 100-event gaps. Hyperparameters are
+selected on validation macro-F1, then models are refit on pre-test observations.
 
-| Component | Status |
-|---|---|
-| LOBSTER message/order-book parser | Implemented |
-| Microstructure features | Implemented |
-| Forward mid-price labels | Implemented |
-| Chronological split utilities | Implemented |
-| Unit tests + CI | Implemented |
-| Logistic regression baseline | Implemented |
-| Gradient-boosted trees | Implemented |
-| DeepLOB-style PyTorch model | Runnable chronological baseline implemented |
-| Multi-day walk-forward study | Requires multi-day data |
-| Cost-aware trading sanity check | Implemented |
+The original matched baselines achieved test macro-F1 0.163 (balanced logistic
+regression) and 0.318 (histogram boosting), versus 0.227 for the majority classifier.
 
-## Data
+A follow-up feature ablation uses the same outer split and disables internal
+random validation/early stopping in every boosting arm:
 
-The initial reproducibility target is the public **LOBSTER sample format**. A paired message file and order-book file represent the same event sequence. Raw market data is deliberately not committed; place paired CSV files under `data/raw/`.
+| Features | Test macro-F1 |
+|---|---:|
+| Price + spread | 0.3044 |
+| Spread + book imbalances | 0.3451 |
+| Spread + event flow | 0.3438 |
+| All except absolute mid-price | **0.3537** |
+| All features | 0.3079 |
 
-Public samples are useful for validating parsing, feature engineering, and the experimental pipeline. A single sample day is **not** treated as evidence of cross-day or cross-regime generalization.
+Removing absolute price improves macro-F1 by 0.0459. Paired temporal-block bootstrap
+intervals support that difference within this sample day. Per-class diagnostics
+also reveal that stationary events are almost never recovered.
 
-## Initial features
+[Results, confusion matrices and uncertainty](docs/RESULTS.md) ·
+[Raw ablation artifact](results/published/feature_ablation.json) ·
+[Feature definitions and design choices](docs/METHOD.md)
 
-- quoted spread and mid-price
-- top-of-book queue imbalance
-- microprice displacement from mid
-- multi-level depth imbalance
-- signed event size
-- order-flow imbalance (OFI)
+![Feature groups, temporal stability and class-level failures](docs/figures/feature_ablation.svg)
 
-## Prediction target
+## Reproduce
 
-At event index `t`, the target uses a strictly future mid-price at `t + h`. A predeclared relative threshold maps the future return to down, stationary, or up. Features at `t` never use future information.
-
-## Evaluation principles
-
-- chronological splits, never random market-time shuffling
-- preprocessing fit on training data only
-- class balance and naive baselines reported
-- model selection separated from final test interval
-- uncertainty across days/seeds where data permits
-- predictive metrics separated from P&L claims
-- spread/fees included before economic claims
-
-See `docs/EXPERIMENT_PROTOCOL.md`.
-
-## Quick start
+Python 3.10+. Raw market data is downloaded locally and is not committed.
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev,ml]"
-pytest -q
+python -m pip install -e ".[dev,ml]"
+python scripts/download_lobster_public_data.py
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python scripts/run_feature_ablation.py \
+  data/raw/aapl_level10/AAPL_2012-06-21_34200000_57600000_message_10.csv \
+  data/raw/aapl_level10/AAPL_2012-06-21_34200000_57600000_orderbook_10.csv
+python -m pytest -q
 ```
 
-## Scope
+Artifacts include input SHA-256 hashes, split boundaries, validation trials,
+selected parameters, per-class scores, six consecutive test intervals, and paired
+block-bootstrap comparisons at two block sizes.
 
-This is a quantitative-research artifact, not investment advice or a production trading system. The completed AAPL baseline comparison, input hashes, runtime versions, and limitations are in [docs/RESULTS.md](docs/RESULTS.md).
+For the measured local stack, see [requirements-reproduce.txt](requirements-reproduce.txt)
+(Python 3.12; critical package pins).
+
+## Code
+
+- [features.py](src/lob_research/features.py): queue/depth imbalance, microprice displacement and OFI.
+- [labels.py](src/lob_research/labels.py), [splits.py](src/lob_research/splits.py): forward labels and horizon purging.
+- [diagnostics.py](src/lob_research/diagnostics.py): confusion counts and paired temporal-block uncertainty.
+- [deep_models.py](src/lob_research/deep_models.py): an additional CNN/LSTM baseline; not evaluated in the tables above.
+- [costs.py](src/lob_research/costs.py): spread/fee sanity checks, separate from predictive scoring.
+
+One public sample day cannot establish cross-day generalization or trading profits.
+The follow-up is exploratory because the original test results were already observed.

@@ -16,7 +16,8 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - run: python -m pip install -e ".[ml]"
+      - run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -e ".[ml,plots]"
       - name: Download official public AAPL level-10 data
         run: python scripts/download_lobster_public_data.py
       - name: Locate aligned files
@@ -37,7 +38,15 @@ jobs:
             "${{ steps.data.outputs.messages }}" \
             "${{ steps.data.outputs.book }}" \
             --output results/aapl_level10_logistic.json
+      - name: Run feature and temporal diagnostics
+        run: |
+          python scripts/run_feature_ablation.py \
+            "${{ steps.data.outputs.messages }}" \
+            "${{ steps.data.outputs.book }}"
+          python scripts/plot_ablation.py --input results/feature_ablation.json
       - uses: actions/upload-artifact@v4
         with:
           name: lobster-aapl-level10-results
-          path: results/*.json
+          path: |
+            results/*.json
+            docs/figures/feature_ablation.svg
