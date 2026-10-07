@@ -15,7 +15,7 @@ The project separates three questions: is there measurable short-horizon signal 
 | Unit tests + CI | Implemented |
 | Logistic regression baseline | Implemented |
 | Gradient-boosted trees | Implemented |
-| DeepLOB-style PyTorch model | Architecture + sequence windows implemented |
+| DeepLOB-style PyTorch model | Runnable chronological baseline implemented |
 | Multi-day walk-forward study | Requires multi-day data |
 | Cost-aware trading sanity check | Planned |
 
