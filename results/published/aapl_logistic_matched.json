@@ -1,0 +1,65 @@
+{
+  "experiment": "interpretable_logistic_baseline",
+  "feature_names": [
+    "spread",
+    "mid_price",
+    "queue_imbalance",
+    "microprice_displacement",
+    "depth_imbalance",
+    "signed_event_size",
+    "ofi"
+  ],
+  "horizon_events": 100,
+  "threshold": 0.0,
+  "depth_levels": 5,
+  "n_observations": 400291,
+  "class_counts": {
+    "-1": 200827,
+    "0": 14084,
+    "1": 185380
+  },
+  "split_sizes": {
+    "train": 240174,
+    "validation": 79958,
+    "test": 79959,
+    "purge": 100
+  },
+  "seed": 2026,
+  "selection_metric": "validation_macro_f1",
+  "candidate_trials": [
+    {
+      "C": 0.1,
+      "validation": {
+        "macro_f1": 0.1211233459690927,
+        "balanced_accuracy": 0.3456711706592333
+      }
+    },
+    {
+      "C": 1.0,
+      "validation": {
+        "macro_f1": 0.12110296649594199,
+        "balanced_accuracy": 0.34566212546946523
+      }
+    },
+    {
+      "C": 10.0,
+      "validation": {
+        "macro_f1": 0.12111255663283205,
+        "balanced_accuracy": 0.34567035612536623
+      }
+    }
+  ],
+  "selected_C": 0.1,
+  "refit": "train_plus_validation",
+  "test": {
+    "majority": {
+      "macro_f1": 0.2273158107295041,
+      "balanced_accuracy": 0.3333333333333333
+    },
+    "logistic_regression": {
+      "macro_f1": 0.16265904137939247,
+      "balanced_accuracy": 0.3491556873596855
+    }
+  },
+  "warning": "A single sample file is a pipeline/smoke study, not evidence of cross-day generalization or trading profitability."
+}

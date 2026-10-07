@@ -7,6 +7,9 @@ jobs:
   experiment:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,7 +31,13 @@ jobs:
             "${{ steps.data.outputs.messages }}" \
             "${{ steps.data.outputs.book }}" \
             --output results/aapl_level10_gradient_boosted.json
+      - name: Run matched logistic baseline
+        run: |
+          python scripts/run_logistic_baseline.py \
+            "${{ steps.data.outputs.messages }}" \
+            "${{ steps.data.outputs.book }}" \
+            --output results/aapl_level10_logistic.json
       - uses: actions/upload-artifact@v4
         with:
           name: lobster-aapl-level10-results
-          path: results/aapl_level10_gradient_boosted.json
+          path: results/*.json

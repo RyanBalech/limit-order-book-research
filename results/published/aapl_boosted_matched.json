@@ -1,0 +1,85 @@
+{
+  "experiment": "gradient_boosted_microstructure_baseline",
+  "feature_names": [
+    "spread",
+    "mid_price",
+    "queue_imbalance",
+    "microprice_displacement",
+    "depth_imbalance",
+    "signed_event_size",
+    "ofi"
+  ],
+  "horizon_events": 100,
+  "threshold": 0.0,
+  "depth_levels": 5,
+  "n_observations": 400291,
+  "seed": 2026,
+  "refit": "train_plus_validation",
+  "split_sizes": {
+    "train": 240174,
+    "validation": 79958,
+    "test": 79959,
+    "purge": 100
+  },
+  "class_counts": {
+    "-1": 200827,
+    "0": 14084,
+    "1": 185380
+  },
+  "selection_metric": "validation_macro_f1",
+  "candidate_trials": [
+    {
+      "params": {
+        "learning_rate": 0.05,
+        "max_iter": 100,
+        "max_leaf_nodes": 15,
+        "l2_regularization": 0.0
+      },
+      "validation": {
+        "macro_f1": 0.30442580202602515,
+        "balanced_accuracy": 0.33191621057214643
+      }
+    },
+    {
+      "params": {
+        "learning_rate": 0.05,
+        "max_iter": 200,
+        "max_leaf_nodes": 31,
+        "l2_regularization": 0.1
+      },
+      "validation": {
+        "macro_f1": 0.32030204363127246,
+        "balanced_accuracy": 0.33605144803524833
+      }
+    },
+    {
+      "params": {
+        "learning_rate": 0.1,
+        "max_iter": 150,
+        "max_leaf_nodes": 31,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "macro_f1": 0.3244489293747402,
+        "balanced_accuracy": 0.33589744485179357
+      }
+    }
+  ],
+  "selected_params": {
+    "learning_rate": 0.1,
+    "max_iter": 150,
+    "max_leaf_nodes": 31,
+    "l2_regularization": 1.0
+  },
+  "test": {
+    "majority": {
+      "macro_f1": 0.2273158107295041,
+      "balanced_accuracy": 0.3333333333333333
+    },
+    "hist_gradient_boosting": {
+      "macro_f1": 0.31789481972416805,
+      "balanced_accuracy": 0.3442527269915138
+    }
+  },
+  "warning": "Hyperparameters are selected only on the chronological validation interval. A single sample file remains a pipeline study, not evidence of cross-day generalization or trading profitability."
+}

@@ -7,3 +7,5 @@ data/raw/
 data/processed/
 results/*.json
 results/*.csv
+
+*.egg-info/

@@ -55,10 +55,10 @@ See `docs/EXPERIMENT_PROTOCOL.md`.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e ".[dev,ml]"
 pytest -q
 ```
 
 ## Scope
 
-This is a quantitative-research artifact, not investment advice or a production trading system. Results are added only after reproducible experiment runs.
+This is a quantitative-research artifact, not investment advice or a production trading system. The completed AAPL baseline comparison, input hashes, runtime versions, and limitations are in [docs/RESULTS.md](docs/RESULTS.md).

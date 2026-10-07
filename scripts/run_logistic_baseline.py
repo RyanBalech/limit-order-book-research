@@ -44,14 +44,27 @@ def main() -> None:
     scaler = Standardizer().fit(x[split.train])
     x_train = scaler.transform(x[split.train])
     x_val = scaler.transform(x[split.validation])
-    x_test = scaler.transform(x[split.test])
     y_train, y_val, y_test = y[split.train], y[split.validation], y[split.test]
 
-    majority_val = majority_predict(y_train, len(y_val))
-    majority_test = majority_predict(y_train, len(y_test))
-    model = LogisticRegression(
-        max_iter=1000, class_weight="balanced", random_state=args.seed
-    ).fit(x_train, y_train)
+    candidates = [0.1, 1.0, 10.0]
+    trials = []
+    best_c, best_score = None, -1.0
+    for c in candidates:
+        model = LogisticRegression(
+            C=c, max_iter=1000, class_weight="balanced", random_state=args.seed
+        ).fit(x_train, y_train)
+        score = metrics(y_val, model.predict(x_val))
+        trials.append({"C": c, "validation": score})
+        if score["macro_f1"] > best_score:
+            best_c, best_score = c, score["macro_f1"]
+    # Match the boosted baseline: select on validation, refit on train + validation.
+    pretest = np.concatenate([split.train, split.validation])
+    final_scaler = Standardizer().fit(x[pretest])
+    final_model = LogisticRegression(
+        C=best_c, max_iter=1000, class_weight="balanced", random_state=args.seed
+    ).fit(final_scaler.transform(x[pretest]), y[pretest])
+    test_metrics = metrics(y_test, final_model.predict(final_scaler.transform(x[split.test])))
+    majority_test = majority_predict(y[pretest], len(y_test))
 
     result = {
         "experiment": "interpretable_logistic_baseline",
@@ -69,13 +82,14 @@ def main() -> None:
             "test": len(split.test),
             "purge": args.horizon,
         },
-        "majority": {
-            "validation": metrics(y_val, majority_val),
-            "test": metrics(y_test, majority_test),
-        },
-        "logistic_regression": {
-            "validation": metrics(y_val, model.predict(x_val)),
-            "test": metrics(y_test, model.predict(x_test)),
+        "seed": args.seed,
+        "selection_metric": "validation_macro_f1",
+        "candidate_trials": trials,
+        "selected_C": best_c,
+        "refit": "train_plus_validation",
+        "test": {
+            "majority": metrics(y_test, majority_test),
+            "logistic_regression": test_metrics,
         },
         "warning": (
             "A single sample file is a pipeline/smoke study, not evidence of "
