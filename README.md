@@ -13,9 +13,9 @@ The project separates three questions: is there measurable short-horizon signal 
 | Forward mid-price labels | Implemented |
 | Chronological split utilities | Implemented |
 | Unit tests + CI | Implemented |
-| Logistic regression baseline | Next |
-| Gradient-boosted trees | Planned |
-| DeepLOB-style PyTorch model | Planned |
+| Logistic regression baseline | Implemented |
+| Gradient-boosted trees | Implemented |
+| DeepLOB-style PyTorch model | Architecture + sequence windows implemented |
 | Multi-day walk-forward study | Requires multi-day data |
 | Cost-aware trading sanity check | Planned |
 
